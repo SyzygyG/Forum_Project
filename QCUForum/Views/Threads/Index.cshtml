@@ -1,0 +1,46 @@
+﻿@model IEnumerable<QCUForum.Models.Thread>
+
+@{
+    ViewBag.Title = "Threads";
+    int currentPage = ViewBag.Page;
+    int categoryId = ViewBag.CategoryId;
+}
+
+<div class="container py-4">
+    <h1 class="text-center mb-4 text-bg-dark p-3 rounded">Threads</h1>
+    <a href="@Url.Action("Index", "Categories")" class="btn btn-secondary mb-3">Back to Categories</a>
+
+    <ul class="list-group mb-4">
+        @foreach (var thread in Model)
+        {
+            <li class="list-group-item list-group-item-action">
+                <a href="@Url.Action("Index", "Posts", new { threadId = thread.Id })" class="text-decoration-none">
+                    <h5>@thread.Title</h5>
+                </a>
+                <small class="text-muted">Created on: @thread.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</small>
+            </li>
+        }
+    </ul>
+
+    <h2>Create New Thread</h2>
+    @using (Html.BeginForm("Create", "Threads", FormMethod.Post))
+    {
+        <div class="mb-3">
+            <label for="title" class="form-label">Thread Title</label>
+            <input type="text" name="Title" id="title" class="form-control" required />
+            <input type="hidden" name="CategoryId" value="@categoryId" />
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+    }
+
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                <a class="page-link" href="@Url.Action("Index", "Threads", new { categoryId = categoryId, page = currentPage - 1 })">&laquo; Previous</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="@Url.Action("Index", "Threads", new { categoryId = categoryId, page = currentPage + 1 })">Next &raquo;</a>
+            </li>
+        </ul>
+    </nav>
+</div>

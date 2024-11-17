@@ -1,0 +1,71 @@
+﻿@model IEnumerable<QCUForum.Models.Category>
+
+@{
+    ViewBag.Title = "Categories";
+
+    // Define which categories belong to Academic and Others
+    var academicCategories = Model.Where(c => new[]
+    {
+        "Information Technology", "Information System", "Computer Science",
+        "Computer Engineering", "Industrial Engineering",
+        "Electronics Engineering", "Management Accounting",
+        "Entrepreneurship", "Early Childhood Education"
+    }.Contains(c.Name));
+
+    var otherCategories = Model.Except(academicCategories);
+}
+<body>
+    <div class="container py-4">
+        <h1 class="text-center mb-4 text-bg-dark p-3 rounded">Categories</h1>
+
+        <!-- Academic Categories Section -->
+        <h2 class="text-bg-dark p-2 mb-4 rounded ">Academic Categories</h2>
+        <div class="row mb-5">
+            @foreach (var category in academicCategories)
+            {
+                <div class="col-md-4 mb-4">
+                    <a href="@Url.Action("Index", "Threads", new { categoryId = category.Id })" class="text-decoration-none">
+                        <div class="card text-bg-dark h-100 shadow-sm category-card">
+                            <div class="card-body">
+                                <h5 class="card-title">@category.Name</h5>
+                                <p class="card-text">@category.Description</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+
+        <!-- Others Categories Section -->
+        <h2 class="text-bg-dark p-2 mb-4 rounded">Other Categories</h2>
+        <div class="row">
+            @foreach (var category in otherCategories)
+            {
+                <div class="col-md-4 mb-4">
+                    <a href="@Url.Action("Index", "Threads", new { categoryId = category.Id })" class="text-decoration-none">
+                        <div class="card text-bg-dark h-100 shadow-sm category-card">
+                            <div class="card-body">
+                                <h5 class="card-title">@category.Name</h5>
+                                <p class="card-text">@category.Description</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</body>
+<style>
+    body {
+        background-color: antiquewhite;
+    }
+    /* Hover effect for expanding the card */
+    .category-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .category-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+        }
+</style>
