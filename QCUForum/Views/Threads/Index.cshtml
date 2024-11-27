@@ -6,10 +6,21 @@
     int categoryId = ViewBag.CategoryId;
 }
 
-<div class="container py-4">
+<div class="container py-4" id="maindiv">
     <h1 class="text-center mb-4 text-bg-dark p-3 rounded">Threads</h1>
     <a href="@Url.Action("Index", "Categories")" class="btn btn-secondary mb-3">Back to Categories</a>
 
+    <h2>Create New Thread</h2>
+    @using (Html.BeginForm("Create", "Threads", FormMethod.Post))
+    {
+        <div class="mb-3">
+            <label for="title" class="form-label">Thread Title</label>
+            <input type="text" name="Title" id="title" class="form-control" required />
+            <input type="hidden" name="CategoryId" value="@categoryId" />
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+    }
+<br />
     <ul class="list-group mb-4">
         @foreach (var thread in Model)
         {
@@ -22,16 +33,6 @@
         }
     </ul>
 
-    <h2>Create New Thread</h2>
-    @using (Html.BeginForm("Create", "Threads", FormMethod.Post))
-    {
-        <div class="mb-3">
-            <label for="title" class="form-label">Thread Title</label>
-            <input type="text" name="Title" id="title" class="form-control" required />
-            <input type="hidden" name="CategoryId" value="@categoryId" />
-        </div>
-        <button type="submit" class="btn btn-primary">Create</button>
-    }
 
     <nav class="mt-4">
         <ul class="pagination justify-content-center">

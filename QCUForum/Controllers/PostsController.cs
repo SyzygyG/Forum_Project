@@ -12,21 +12,15 @@ namespace QCUForum.Controllers
         public ActionResult Index(int threadId, int page = 1, int pageSize = 10)
         {
             var posts = new List<Post>();
+            int categoryId = 0; // Default value or retrieve dynamically from the database
 
             using (var connection = DatabaseHelper.GetConnection())
             {
                 connection.Open();
-                var query = @"SELECT id, content, thread_id, created_at 
-                              FROM Posts 
-                              WHERE thread_id = @threadId
-                              ORDER BY created_at ASC
-                              LIMIT @offset, @pageSize";
+                var query = "SELECT id, content, thread_id, created_at FROM Posts WHERE thread_id = @threadId";
                 using (var command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@threadId", threadId);
-                    command.Parameters.AddWithValue("@offset", (page - 1) * pageSize);
-                    command.Parameters.AddWithValue("@pageSize", pageSize);
-
                     using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())
@@ -41,15 +35,24 @@ namespace QCUForum.Controllers
                         }
                     }
                 }
+
+                // Retrieve categoryId based on threadId (this depends on your database schema)
+                var categoryQuery = "SELECT category_id FROM Threads WHERE id = @threadId";
+                using (var categoryCommand = new MySqlCommand(categoryQuery, connection))
+                {
+                    categoryCommand.Parameters.AddWithValue("@threadId", threadId);
+                    categoryId = Convert.ToInt32(categoryCommand.ExecuteScalar());
+                }
             }
 
-            // Pass pagination data to the view
             ViewBag.Page = page;
             ViewBag.PageSize = pageSize;
             ViewBag.ThreadId = threadId;
+            ViewBag.CategoryId = categoryId; // Pass categoryId to the view
 
-            return View(posts); // Return paginated posts
+            return View(posts);
         }
+
 
         [HttpPost]
         public ActionResult Create(Post post)

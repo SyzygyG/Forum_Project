@@ -14,58 +14,108 @@
 
     var otherCategories = Model.Except(academicCategories);
 }
-<body>
+
+<body class="bg-dark text-light">
+    <div class="container mb-4" style="width: 60vw;">
+        <div class="text-bg-dark rounded-4 p-4">
+            <h2 class="fw-bold mb-3">Welcome to the QCU Forum!</h2>
+            <p class="lead">
+                Our school's vibrant online forum designed for the Quezon City University community! This easy-to-use platform allows you to dive into dynamic discussions, share insights, seek advice, and connect with fellow users anonymously.
+            </p>
+            <p>
+                Share ideas, ask questions, and interact with other students on various topics related to campus life. You don't need to create an account to join in, so you can quickly start participating and connecting with others.
+            </p>
+            <p>
+                Before posting, make sure to review the Community Rules in the
+                <a href="@Url.Action("About", "Home")" class="text-info">About</a> section and check out the
+                <a href="@Url.Action("Faq", "Home")" class="text-info">FAQ</a> for more information on how to navigate the site.
+            </p>
+        </div>
+    </div>
+
     <div class="container py-4">
-        <h1 class="text-center mb-4 text-bg-dark p-3 rounded">Categories</h1>
 
         <!-- Academic Categories Section -->
-        <h2 class="text-bg-dark p-2 mb-4 rounded ">Academic Categories</h2>
-        <div class="row mb-5">
-            @foreach (var category in academicCategories)
-            {
-                <div class="col-md-4 mb-4">
-                    <a href="@Url.Action("Index", "Threads", new { categoryId = category.Id })" class="text-decoration-none">
-                        <div class="card text-bg-dark h-100 shadow-sm category-card">
-                            <div class="card-body">
-                                <h5 class="card-title">@category.Name</h5>
-                                <p class="card-text">@category.Description</p>
+        <div class="mb-5">
+            <h2 class="bg-gradient text-light p-3 mb-4 rounded text-uppercase fw-bold">
+                <i class="bi bi-mortarboard-fill me-2"></i>Academic Categories
+            </h2>
+            <div class="row">
+                @foreach (var category in academicCategories)
+                {
+                    <div class="col-md-4 mb-4">
+                        <a href="@Url.Action("Index", "Threads", new { categoryId = category.Id })" class="text-decoration-none">
+                            <div class="card bg-secondary text-white h-100 shadow-sm category-card">
+                                <div class="card-body">
+                                    <h5 class="card-title fw-bold">@category.Name</h5>
+                                    <p class="card-text">@category.Description</p>
+                                </div>
                             </div>
-                        </div>
-                    </a>
-                </div>
-            }
+                        </a>
+                    </div>
+                }
+            </div>
         </div>
 
-        <!-- Others Categories Section -->
-        <h2 class="text-bg-dark p-2 mb-4 rounded">Other Categories</h2>
-        <div class="row">
-            @foreach (var category in otherCategories)
-            {
-                <div class="col-md-4 mb-4">
-                    <a href="@Url.Action("Index", "Threads", new { categoryId = category.Id })" class="text-decoration-none">
-                        <div class="card text-bg-dark h-100 shadow-sm category-card">
-                            <div class="card-body">
-                                <h5 class="card-title">@category.Name</h5>
-                                <p class="card-text">@category.Description</p>
+        <!-- Other Categories Section -->
+        <div>
+            <h2 class="bg-gradient text-light p-3 mb-4 rounded text-uppercase fw-bold">
+                <i class="bi bi-box-seam-fill me-2"></i>Other Categories
+            </h2>
+            <div class="row">
+                @foreach (var category in otherCategories)
+                {
+                    <div class="col-md-4 mb-4">
+                        <a href="@Url.Action("Index", "Threads", new { categoryId = category.Id })" class="text-decoration-none">
+                            <div class="card bg-secondary text-white h-100 shadow-sm category-card">
+                                <div class="card-body">
+                                    <h5 class="card-title fw-bold">@category.Name</h5>
+                                    <p class="card-text">@category.Description</p>
+                                </div>
                             </div>
-                        </div>
-                    </a>
-                </div>
-            }
+                        </a>
+                    </div>
+                }
+            </div>
         </div>
     </div>
 </body>
+
 <style>
-    body {
-        background-color: antiquewhite;
-    }
-    /* Hover effect for expanding the card */
+    /* General card styling */
     .category-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+        border-radius: 10px;
     }
 
+        /* Hover effects */
         .category-card:hover {
             transform: scale(1.05);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+            background-color: rgba(255, 255, 255, 0.05);
         }
+
+    /* Body background to distinguish cards */
+    body.bg-dark {
+        background-color: #1a1a1a;
+    }
+
+    /* Muted secondary section */
+    .bg-secondary {
+        background-color: #343a40 !important; /* Dark gray for distinction */
+    }
+
+    /* Muted dark section */
+    .bg-dark {
+        background-color: #212529 !important; /* Near black */
+    }
+
+    /* Gradient background for titles */
+    .bg-gradient {
+        background: linear-gradient(90deg, #6c757d, #495057);
+    }
+
+    .bg-gradient-secondary {
+        background: linear-gradient(90deg, #495057, #343a40);
+    }
 </style>

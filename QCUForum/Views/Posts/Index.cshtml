@@ -10,6 +10,17 @@
         <h1 class="text-center mb-4 text-bg-dark p-3 rounded">Posts</h1>
         <a href="@Url.Action("Index", "Threads", new { categoryId = ViewBag.CategoryId })" class="btn btn-secondary mb-3">Back to Threads</a>
 
+        <h2>Add a New Post</h2>
+        @using (Html.BeginForm("Create", "Posts", FormMethod.Post))
+        {
+            <div class="mb-3">
+                <label for="content" class="form-label">Your Post</label>
+                <textarea name="Content" id="content" rows="4" class="form-control" required></textarea>
+                <input type="hidden" name="ThreadId" value="@threadId" />
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button> 
+        }
+    <br />
         <ul class="list-group mb-4">
             @foreach (var post in Model)
             {
@@ -19,17 +30,6 @@
                 </li>
             }
         </ul>
-
-        <h2>Add a New Post</h2>
-        @using (Html.BeginForm("Create", "Posts", FormMethod.Post))
-        {
-            <div class="mb-3">
-                <label for="content" class="form-label">Your Post</label>
-                <textarea name="Content" id="content" rows="4" class="form-control" required></textarea>
-                <input type="hidden" name="ThreadId" value="@threadId" />
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        }
 
         <nav class="mt-4">
             <ul class="pagination justify-content-center">
@@ -43,7 +43,3 @@
         </nav>
     </div>
 </body>
-
-    body {
-        background-color: antiquewhite;
-    }
