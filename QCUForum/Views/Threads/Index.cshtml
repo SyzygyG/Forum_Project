@@ -4,10 +4,25 @@
     ViewBag.Title = "Threads";
     int currentPage = ViewBag.Page;
     int categoryId = ViewBag.CategoryId;
+
+    // Fetch the category name from the database
+    string categoryName = "";
+    using (var connection = QCUForum.Helpers.DatabaseHelper.GetConnection())
+    {
+        connection.Open();
+        var query = "SELECT name FROM Categories WHERE id = @categoryId";
+        using (var command = new MySql.Data.MySqlClient.MySqlCommand(query, connection))
+        {
+            command.Parameters.AddWithValue("@categoryId", categoryId);
+            categoryName = command.ExecuteScalar()?.ToString() ?? "Unknown Category";
+        }
+    }
 }
 
 <div class="container py-4" id="maindiv">
-    <h1 class="text-center mb-4 text-bg-dark p-3 rounded">Threads</h1>
+    <h1 class="text-center mb-4 text-bg-dark p-3 rounded">
+        Threads in <span class="text-info">@categoryName</span>
+    </h1>
     <a href="@Url.Action("Index", "Categories")" class="btn btn-secondary mb-3">Back to Categories</a>
 
     <h2>Create New Thread</h2>
@@ -20,7 +35,7 @@
         </div>
         <button type="submit" class="btn btn-primary">Create</button>
     }
-<br />
+    <br />
     <ul class="list-group mb-4">
         @foreach (var thread in Model)
         {
@@ -32,7 +47,6 @@
             </li>
         }
     </ul>
-
 
     <nav class="mt-4">
         <ul class="pagination justify-content-center">

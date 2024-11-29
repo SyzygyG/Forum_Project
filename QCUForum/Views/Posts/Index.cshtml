@@ -4,10 +4,51 @@
     ViewBag.Title = "Posts";
     int currentPage = ViewBag.Page;
     int threadId = ViewBag.ThreadId;
+
+    // Fetch the thread name and category name from the database
+    string threadName = "";
+    string categoryName = "";
+    using (var connection = QCUForum.Helpers.DatabaseHelper.GetConnection())
+    {
+        connection.Open();
+
+        // Fetch the thread name and category ID
+        int categoryId = 0;
+        var threadQuery = "SELECT title, category_id FROM Threads WHERE id = @threadId";
+        using (var threadCommand = new MySql.Data.MySqlClient.MySqlCommand(threadQuery, connection))
+        {
+            threadCommand.Parameters.AddWithValue("@threadId", threadId);
+            using (var reader = threadCommand.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    threadName = reader.GetString("title");
+                    categoryId = reader.GetInt32("category_id");
+                }
+            }
+        }
+
+        // Fetch the category name based on the category ID
+        if (categoryId > 0)
+        {
+            var categoryQuery = "SELECT name FROM Categories WHERE id = @categoryId";
+            using (var categoryCommand = new MySql.Data.MySqlClient.MySqlCommand(categoryQuery, connection))
+            {
+                categoryCommand.Parameters.AddWithValue("@categoryId", categoryId);
+                categoryName = categoryCommand.ExecuteScalar()?.ToString() ?? "Unknown Category";
+            }
+        }
+    }
 }
+
 <body>
     <div class="container py-4">
-        <h1 class="text-center mb-4 text-bg-dark p-3 rounded">Posts</h1>
+        <h1 class="text-center mb-4 text-bg-dark p-3 rounded">
+            Posts in <span class="text-info">@threadName</span>
+        </h1>
+        <h2 class="text-center mb-4 text-bg-dark">
+            Under Category: <span class="text-primary">@categoryName</span>
+        </h2>
         <a href="@Url.Action("Index", "Threads", new { categoryId = ViewBag.CategoryId })" class="btn btn-secondary mb-3">Back to Threads</a>
 
         <h2>Add a New Post</h2>
@@ -18,9 +59,9 @@
                 <textarea name="Content" id="content" rows="4" class="form-control" required></textarea>
                 <input type="hidden" name="ThreadId" value="@threadId" />
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button> 
+            <button type="submit" class="btn btn-primary">Submit</button>
         }
-    <br />
+        <br />
         <ul class="list-group mb-4">
             @foreach (var post in Model)
             {
