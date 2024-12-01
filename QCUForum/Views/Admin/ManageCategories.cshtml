@@ -1,0 +1,56 @@
+﻿@model IEnumerable<QCUForum.Models.Category>
+
+<div class="container mt-5">
+    <h1 class="text-center">Manage Categories</h1>
+
+    <a href="@Url.Action("Dashboard", "Admin")" class="btn btn-secondary mb-3">Dashboard</a>
+
+    <table class="table table-dark table-striped mt-4">
+        <thead>
+            <tr>
+                <th>Category Name</th>
+                <th>Description</th>
+                <th class="text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var category in Model)
+            {
+                <tr>
+                    <td>@category.Name</td>
+                    <td>@category.Description</td>
+                    <td class="text-center">
+                        <!-- Manage Threads Button -->
+                        <a href="@Url.Action("ManageThreads", "Admin", new { categoryId = category.Id })" class="btn btn-primary btn-sm me-2">Manage Threads</a>
+
+                        <!-- Delete Button -->
+                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal-@category.Id">Delete</button>
+                    </td>
+                </tr>
+
+                <!-- Delete Modal -->
+                <div class="modal fade" id="deleteCategoryModal-@category.Id" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteCategoryModalLabel">Delete Category</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure you want to delete the category "<strong>@category.Name</strong>"?
+                            </div>
+                            <div class="modal-footer">
+                                @using (Html.BeginForm("DeleteCategory", "Admin", FormMethod.Post))
+                                {
+                                    <input type="hidden" name="id" value="@category.Id" />
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                }
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </tbody>
+    </table>
+</div>
