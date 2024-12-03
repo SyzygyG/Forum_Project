@@ -256,18 +256,31 @@ namespace QCUForum.Controllers
         [HttpPost]
         public ActionResult DeleteThread(int id)
         {
+            int categoryId = 0;
+
             using (var connection = DatabaseHelper.GetConnection())
             {
                 connection.Open();
-                var query = "DELETE FROM Threads WHERE id = @id";
-                using (var command = new MySqlCommand(query, connection))
+
+                // Fetch the category ID before deletion
+                var categoryQuery = "SELECT category_id FROM Threads WHERE id = @id";
+                using (var command = new MySqlCommand(categoryQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@id", id);
+                    categoryId = Convert.ToInt32(command.ExecuteScalar());
+                }
+
+                // Delete the thread
+                var deleteQuery = "DELETE FROM Threads WHERE id = @id";
+                using (var command = new MySqlCommand(deleteQuery, connection))
                 {
                     command.Parameters.AddWithValue("@id", id);
                     command.ExecuteNonQuery();
                 }
             }
 
-            return RedirectToAction("ManageThreads", new { categoryId = ViewBag.CategoryId });
+            // Redirect back to the posts page for the same thread
+            return RedirectToAction("ManageThreads", new { categoryId });
         }
 
 

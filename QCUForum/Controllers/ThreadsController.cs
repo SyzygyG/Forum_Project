@@ -52,22 +52,60 @@ namespace QCUForum.Controllers
         }
 
         [HttpPost]
-        public ActionResult Create(Thread thread)
+        public ActionResult Create(string Title, int CategoryId)
         {
+            string clientIp = Request.UserHostAddress;
+            if (clientIp == "::1") clientIp = "127.0.0.1"; // Handle localhost
+
+            DateTime now = DateTime.UtcNow;
+
             using (var connection = DatabaseHelper.GetConnection())
             {
                 connection.Open();
-                var query = "INSERT INTO Threads (title, category_id, created_at) VALUES (@title, @categoryId, @createdAt)";
-                using (var command = new MySqlCommand(query, connection))
+
+                // Check last thread submission time for this IP
+                var checkQuery = "SELECT last_thread_submission FROM IpTracking WHERE ip_address = @ip";
+                using (var checkCommand = new MySqlCommand(checkQuery, connection))
                 {
-                    command.Parameters.AddWithValue("@title", thread.Title);
-                    command.Parameters.AddWithValue("@categoryId", thread.CategoryId);
-                    command.Parameters.AddWithValue("@createdAt", DateTime.Now);
-                    command.ExecuteNonQuery();
+                    checkCommand.Parameters.AddWithValue("@ip", clientIp);
+                    var lastThreadSubmission = checkCommand.ExecuteScalar() as DateTime?;
+
+                    if (lastThreadSubmission.HasValue && (now - lastThreadSubmission.Value).TotalSeconds < 30)
+                    {
+                        // User is submitting threads too quickly
+                        TempData["Error"] = "Please wait at least 30 seconds before submitting another thread.";
+                        return RedirectToAction("Index", new { categoryId = CategoryId });
+
+                    }
+                }
+
+                // Insert or update IP tracking for threads
+                var updateQuery = @"
+            INSERT INTO IpTracking (ip_address, last_thread_submission) 
+            VALUES (@ip, @time)
+            ON DUPLICATE KEY UPDATE last_thread_submission = @time";
+                using (var updateCommand = new MySqlCommand(updateQuery, connection))
+                {
+                    updateCommand.Parameters.AddWithValue("@ip", clientIp);
+                    updateCommand.Parameters.AddWithValue("@time", now);
+                    updateCommand.ExecuteNonQuery();
+                }
+
+                // Proceed with thread creation
+                var createQuery = "INSERT INTO Threads (title, category_id, created_at) VALUES (@title, @categoryId, @createdAt)";
+                using (var createCommand = new MySqlCommand(createQuery, connection))
+                {
+                    createCommand.Parameters.AddWithValue("@title", Title);
+                    createCommand.Parameters.AddWithValue("@categoryId", CategoryId);
+                    createCommand.Parameters.AddWithValue("@createdAt", now);
+                    createCommand.ExecuteNonQuery();
                 }
             }
 
-            return RedirectToAction("Index", new { categoryId = thread.CategoryId });
+            return RedirectToAction("Index", new { categoryId = CategoryId });
         }
+
+
+
     }
 }

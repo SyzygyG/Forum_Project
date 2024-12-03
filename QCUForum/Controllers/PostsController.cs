@@ -53,24 +53,61 @@ namespace QCUForum.Controllers
             return View(posts);
         }
 
-
         [HttpPost]
-        public ActionResult Create(Post post)
+        public ActionResult Create(string Content, int ThreadId)
         {
+            string clientIp = Request.UserHostAddress;
+            if (clientIp == "::1") clientIp = "127.0.0.1"; // Handle localhost
+
+            DateTime now = DateTime.UtcNow;
+
             using (var connection = DatabaseHelper.GetConnection())
             {
                 connection.Open();
-                var query = "INSERT INTO Posts (content, thread_id, created_at) VALUES (@content, @threadId, @createdAt)";
-                using (var command = new MySqlCommand(query, connection))
+
+                // Check last post submission time for this IP
+                var checkQuery = "SELECT last_post_submission FROM IpTracking WHERE ip_address = @ip";
+                using (var checkCommand = new MySqlCommand(checkQuery, connection))
                 {
-                    command.Parameters.AddWithValue("@content", post.Content);
-                    command.Parameters.AddWithValue("@threadId", post.ThreadId);
-                    command.Parameters.AddWithValue("@createdAt", DateTime.Now);
-                    command.ExecuteNonQuery();
+                    checkCommand.Parameters.AddWithValue("@ip", clientIp);
+                    var lastPostSubmission = checkCommand.ExecuteScalar() as DateTime?;
+
+                    if (lastPostSubmission.HasValue && (now - lastPostSubmission.Value).TotalSeconds < 30)
+                    {
+                        // User is submitting posts too quickly
+                        TempData["Error"] = "Please wait at least 30 seconds before submitting another post.";
+                        return RedirectToAction("Index", new { threadId = ThreadId });
+
+                    }
+                }
+
+                // Insert or update IP tracking for posts
+                var updateQuery = @"
+            INSERT INTO IpTracking (ip_address, last_post_submission) 
+            VALUES (@ip, @time)
+            ON DUPLICATE KEY UPDATE last_post_submission = @time";
+                using (var updateCommand = new MySqlCommand(updateQuery, connection))
+                {
+                    updateCommand.Parameters.AddWithValue("@ip", clientIp);
+                    updateCommand.Parameters.AddWithValue("@time", now);
+                    updateCommand.ExecuteNonQuery();
+                }
+
+                // Proceed with post creation
+                var createQuery = "INSERT INTO Posts (content, thread_id, created_at) VALUES (@content, @threadId, @createdAt)";
+                using (var createCommand = new MySqlCommand(createQuery, connection))
+                {
+                    createCommand.Parameters.AddWithValue("@content", Content);
+                    createCommand.Parameters.AddWithValue("@threadId", ThreadId);
+                    createCommand.Parameters.AddWithValue("@createdAt", now);
+                    createCommand.ExecuteNonQuery();
                 }
             }
 
-            return RedirectToAction("Index", new { threadId = post.ThreadId });
+            return RedirectToAction("Index", new { threadId = ThreadId });
         }
+
+
+
     }
 }
