@@ -55,50 +55,25 @@ namespace QCUForum.Controllers
         [AuthorizeAdmin]
         public ActionResult Dashboard()
         {
-            var stats = new DashboardStats
-            {
-                Categories = new List<Category>(),
-                Threads = new List<Thread>()
-            };
+            var stats = new DashboardStats();
 
             using (var connection = DatabaseHelper.GetConnection())
             {
                 connection.Open();
 
                 // Fetch category count
-                var categoryQuery = "SELECT id, name FROM Categories";
+                var categoryQuery = "SELECT COUNT(*) FROM Categories";
                 using (var command = new MySqlCommand(categoryQuery, connection))
-                using (var reader = command.ExecuteReader())
                 {
-                    while (reader.Read())
-                    {
-                        stats.Categories.Add(new Category
-                        {
-                            Id = reader.GetInt32("id"),
-                            Name = reader.GetString("name")
-                        });
-                    }
+                    stats.CategoryCount = Convert.ToInt32(command.ExecuteScalar());
                 }
 
-                stats.CategoryCount = stats.Categories.Count;
-
-                // Fetch thread count and list
-                var threadQuery = "SELECT id, title, category_id FROM Threads";
+                // Fetch thread count
+                var threadQuery = "SELECT COUNT(*) FROM Threads";
                 using (var command = new MySqlCommand(threadQuery, connection))
-                using (var reader = command.ExecuteReader())
                 {
-                    while (reader.Read())
-                    {
-                        stats.Threads.Add(new Thread
-                        {
-                            Id = reader.GetInt32("id"),
-                            Title = reader.GetString("title"),
-                            CategoryId = reader.GetInt32("category_id")
-                        });
-                    }
+                    stats.ThreadCount = Convert.ToInt32(command.ExecuteScalar());
                 }
-
-                stats.ThreadCount = stats.Threads.Count;
 
                 // Fetch post count
                 var postQuery = "SELECT COUNT(*) FROM Posts";
@@ -110,6 +85,7 @@ namespace QCUForum.Controllers
 
             return View(stats);
         }
+
 
 
 
