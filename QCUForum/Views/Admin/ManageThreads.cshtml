@@ -11,15 +11,17 @@
             <tr>
                 <th>Thread Title</th>
                 <th>Created At</th>
+                <th>Reports</th>
                 <th class="text-center">Actions</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var thread in Model)
             {
-                <tr>
+                <tr class="@(thread.ReportCount > 5 ? "table-danger" : "")">
                     <td>@thread.Title</td>
                     <td>@thread.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    <td>@thread.ReportCount</td>
                     <td class="text-center">
                         <!-- View Posts Button -->
                         <a href="@Url.Action("ManagePosts", "Admin", new { threadId = thread.Id })" class="btn btn-primary btn-sm me-2">View Posts</a>
@@ -54,4 +56,6 @@
             }
         </tbody>
     </table>
+
+
 </div>

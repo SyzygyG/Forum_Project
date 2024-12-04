@@ -226,8 +226,11 @@ namespace QCUForum.Controllers
                     categoryName = command.ExecuteScalar()?.ToString();
                 }
 
-                // Fetch threads
-                var threadQuery = "SELECT id, title, category_id, created_at FROM Threads WHERE category_id = @categoryId";
+                // Fetch threads with report counts
+                var threadQuery = @"
+            SELECT id, title, category_id, created_at, report_count
+            FROM Threads
+            WHERE category_id = @categoryId";
                 using (var command = new MySqlCommand(threadQuery, connection))
                 {
                     command.Parameters.AddWithValue("@categoryId", categoryId.Value);
@@ -240,7 +243,8 @@ namespace QCUForum.Controllers
                                 Id = reader.GetInt32("id"),
                                 Title = reader.GetString("title"),
                                 CategoryId = reader.GetInt32("category_id"),
-                                CreatedAt = reader.GetDateTime("created_at")
+                                CreatedAt = reader.GetDateTime("created_at"),
+                                ReportCount = reader.GetInt32("report_count") // Fetch report count
                             });
                         }
                     }
@@ -251,6 +255,7 @@ namespace QCUForum.Controllers
             ViewBag.CategoryId = categoryId;
             return View(threads);
         }
+
 
         [AuthorizeAdmin]
         [HttpPost]
@@ -322,8 +327,11 @@ namespace QCUForum.Controllers
                     }
                 }
 
-                // Fetch posts
-                var postQuery = "SELECT id, content, thread_id, created_at FROM Posts WHERE thread_id = @threadId";
+                // Fetch posts with report counts
+                var postQuery = @"
+            SELECT id, content, thread_id, created_at, report_count
+            FROM Posts
+            WHERE thread_id = @threadId";
                 using (var command = new MySqlCommand(postQuery, connection))
                 {
                     command.Parameters.AddWithValue("@threadId", threadId.Value);
@@ -336,7 +344,8 @@ namespace QCUForum.Controllers
                                 Id = reader.GetInt32("id"),
                                 Content = reader.GetString("content"),
                                 ThreadId = reader.GetInt32("thread_id"),
-                                CreatedAt = reader.GetDateTime("created_at")
+                                CreatedAt = reader.GetDateTime("created_at"),
+                                ReportCount = reader.GetInt32("report_count") // Fetch report count
                             });
                         }
                     }
@@ -349,7 +358,6 @@ namespace QCUForum.Controllers
             ViewBag.ThreadId = threadId;
             return View(posts);
         }
-
 
 
         [AuthorizeAdmin]

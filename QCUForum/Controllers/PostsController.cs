@@ -107,6 +107,25 @@ namespace QCUForum.Controllers
             return RedirectToAction("Index", new { threadId = ThreadId });
         }
 
+        [HttpPost]
+        public ActionResult ReportPost(int id, int threadId)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                connection.Open();
+
+                // Increment report count for the post
+                var query = "UPDATE Posts SET report_count = report_count + 1 WHERE id = @id";
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@id", id);
+                    command.ExecuteNonQuery();
+                }
+            }
+
+            TempData["Success"] = "Post has been reported successfully.";
+            return RedirectToAction("Index", new { threadId }); // Pass threadId explicitly
+        }
 
 
     }

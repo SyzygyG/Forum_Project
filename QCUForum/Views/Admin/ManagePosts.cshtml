@@ -2,7 +2,7 @@
 
 <div class="container mt-5">
     <h1 class="text-center">
-        Manage Posts for Thread: @ViewBag.ThreadTitle (Category: @ViewBag.CategoryName)
+        Manage Posts for Thread: @ViewBag.ThreadTitle <br /> In (Category: @ViewBag.CategoryName)
     </h1>
     <a href="@Url.Action("ManageThreads", "Admin", new { categoryId = ViewBag.CategoryId })" class="btn btn-secondary mb-3">Back to Threads</a>
 
@@ -17,15 +17,17 @@
             <tr>
                 <th>Content</th>
                 <th>Created At</th>
+                <th>Reports</th>
                 <th class="text-center">Actions</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var post in Model)
             {
-                <tr>
+                <tr class="@(post.ReportCount > 5 ? "table-danger" : "")">
                     <td>@post.Content</td>
                     <td>@post.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    <td>@post.ReportCount</td>
                     <td class="text-center">
                         <!-- Delete Button -->
                         <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deletePostModal-@post.Id">Delete</button>
@@ -57,4 +59,5 @@
             }
         </tbody>
     </table>
+
 </div>

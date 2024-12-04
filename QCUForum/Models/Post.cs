@@ -18,5 +18,6 @@ namespace QCUForum.Models
 
             // Date and time the post was created
             public DateTime CreatedAt { get; set; }
+            public int ReportCount { get; set; }
         }
-    }
+}
